@@ -1,11 +1,12 @@
 "use client"
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import Link from 'next/link';
 
-export default function Summary() {
+// Create a wrapper component that uses search params
+function SummaryContent() {
   const searchParams = useSearchParams();
   const bookTitle = searchParams.get('title') || '';
   
@@ -394,8 +395,8 @@ export default function Summary() {
         ) : null}
 
         {/* Popular Books Section */}
-        <section className="mb-16">
-          <h2 className="text-2xl font-bold text-center mb-8 text-gray-700 mt-6">Popular Summaries</h2>
+        <section className="mt-12">
+          <h2 className="text-2xl font-bold text-center mb-8 text-gray-700">Popular Summaries</h2>
           <div className="grid md:grid-cols-4 gap-6">
             {[
               { title: "Atomic Habits", author: "James Clear", cover: "/atomic.png" },
@@ -430,5 +431,28 @@ export default function Summary() {
         </section>
       </div>
     </div>
+  );
+}
+
+// Loading fallback component
+function SummaryLoading() {
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-white to-blue-50 py-12">
+      <div className="container mx-auto px-4">
+        <div className="flex flex-col items-center justify-center py-16">
+          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+          <p className="text-gray-600 text-lg">Loading book summary...</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Main component with Suspense boundary
+export default function Summary() {
+  return (
+    <Suspense fallback={<SummaryLoading />}>
+      <SummaryContent />
+    </Suspense>
   );
 }
